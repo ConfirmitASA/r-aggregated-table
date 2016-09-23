@@ -1,11 +1,11 @@
 {
-  "name": "ES6_test_framework_boilerplate",
-  "version": "0.2.0",
-  "description": "Boilerplate for ES6 modules with Karma & Jasmine",
+  "name": "r-aggregated-table",
+  "version": "0.1.0",
+  "description": "Base class for all aggregated tables",
   "main": "src/main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConfirmitASA/ES6_test_framework_boilerplate.git"
+    "url": "https://github.com/ConfirmitASA/r-aggregated-table.git"
   },
   "scripts": {
     "build": "npm run clean && npm run build:prd",
@@ -14,12 +14,11 @@
     "clean": "rimraf dist build",
     "lint": "eslint src",
     "docs": "node_modules/.bin/jsdoc --configure jsdoc.conf --verbose",
-    "docs-commit": "git subtree push --prefix docs/ES6_test_framework_boilerplate origin gh-pages",
+    "docs-commit": "git subtree push --prefix docs/r-aggregated-table/0.1.0 origin gh-pages",
     "test": "karma start --single-run --no-auto-watch karma.config.js",
     "report-coverage": "codecov -f coverage/lcov.info"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "ConfirmitASA",
   "license": "",
   "devDependencies": {
@@ -45,6 +44,7 @@
     "karma-ie-launcher": "^1.0.0",
     "karma-jasmine": "^0.3.6",
     "karma-jasmine-ajax": "^0.1.13",
+    "karma-jasmine-jquery": "^0.1.1",
     "karma-opera-launcher": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-sourcemap-loader": "^0.3.7",
@@ -55,10 +55,14 @@
     "postcss-cssnext": "^2.6.0",
     "postcss-import": "^8.1.2",
     "postcss-inline-svg": "trysound/postcss-inline-svg",
+    "r-visual-fixture-test": "github:confirmitasa/r-visual-fixture-test",
     "postcss-loader": "^0.9.1",
     "rimraf": "^2.5.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "codecov": ">1.0.0"
+  },
+  "dependencies": {
+    "r-reporal-base": "github:confirmitasa/r-reportal-base"
   }
 }

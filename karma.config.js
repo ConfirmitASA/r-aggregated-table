@@ -57,6 +57,12 @@ module.exports = function (config) {
               cacheDirectory: true,
             },
           },
+          {
+            test:   /\.css$/,
+            include: /src/,
+            loader:  "css!postcss"
+          }
+
         ],
         loaders: [
           {

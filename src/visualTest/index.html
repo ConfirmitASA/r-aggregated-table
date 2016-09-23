@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visual test</title>
+  <script src="../../node_modules/webcomponents.js/src/HTMLImports/HTMLImports.js"></script>
+  <script src="../../node_modules/r-visual-fixture-test/src/visual-fixture-test.js"></script>
+
+  <script src="../../dist/r-aggregated-table.bundle.js"></script>
+  <!--link rel="stylesheet" href="../../dist/styles.css"-->
+
+
+  <script>
+    testFixture(function(){
+      var tableTest = new Reportal.AggregatedTable({
+        source: document.querySelector('table'),
+        data: [['foo','bar']]
+      });
+    });
+    testFixture('table-nested-rowheaders',function(){
+      var multidimentional = Reportal.AggregatedTable.detectMultidimentional(document.querySelector('table'));
+
+      console.log(Reportal.AggregatedTable.getData({
+        source:document.querySelector('table'),
+        multidimentional,
+        direction:'column',
+      }));
+
+    })
+  </script>
+
+  <link rel="import" href="../__tests__/fixtures/table-nested-headers.html">
+  <link rel="import" href="../__tests__/fixtures/table-crazy-nested-headers.html">
+  <link rel="import" href="../__tests__/fixtures/table-nested-rowheaders.html">
+
+</head>
+<body></body>
+</html>
