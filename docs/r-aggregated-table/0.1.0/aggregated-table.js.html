@@ -85,8 +85,8 @@ class AggregatedTable {
    * @param {HTMLTableElement} options.source - source table that will be an input for data stripping
    * @param {String} options.direction='row' - direction in which data stripping will occur: `row` strips across rows and presents an array where each array item is an array of cell values. `column` strips values verticaly in a column, the resulting array will contain arrays (per column) with values resembling normalized data for cells in the column
    * @param {Boolean} [options.excludeBlock = true] - if table contains block cells that rowspan across several rows, we might need to exclude those from actual data
-   * @param {Array|Number} [options.excludeColumns] - if table contains cells that are not to be in data, then pass a single index or an array of cell indices (0-based)
-   * @param {Array|Number} [options.excludeRows] - if table contains rows that are not to be in data, then pass a single index or an array of row indices (0-based)
+   * @param {Array|Number} [options.excludeColumns] - if table contains columns that are not to be in data, then pass a single index or an array of cell indices (0-based). You need to count columns not by headers but by the cells in rows.
+   * @param {Array|Number} [options.excludeRows] - if table contains rows that are not to be in data, then pass a single index or an array of row indices (0-based). You need to count only rows that contain data, not the table-header rows.
    * @param {Array|Number} options.multidimentional=false - whether the table has aggregating cells that aggregate rowheaders. Result of {@link AggregatedTable#detectMultidimentional} may be passed here to automatically calculate if it has aggregating cells.
    * @returns {Array} returns data array.
    * */
@@ -97,6 +97,27 @@ class AggregatedTable {
       let rows = [].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`));
       if(rows.length>0){
         var tempArray=[];
+        // account for a negative row number (`-1`) meaning last row
+        if(typeof excludeRows != undefined){
+          if(typeof excludeRows == 'number'){
+            // for non-block rows in multidimentional
+            if(excludeRows&lt;0){ // account for a negative column number (e.g.`-1`) meaning last column
+              excludeRows= rows.length+excludeRows;
+            }
+            rows.splice(excludeRows,1);
+          }
+          if(Array.isArray(excludeRows)){
+            excludeRows.sort((a,b)=>{return a>b?1:-1}).reverse(); //sort to splice from the end of the array
+            excludeRows.forEach(i=>{
+              if(i>=0){
+                rows.splice(i,1);
+              } else {
+                rows.splice(rows.length+i,1);
+              }
+            });
+
+          }
+        }
         rows.forEach((row,rowIndex)=>{
           if(multidimentional){
             // we need to check if the `tempArray` is not empty and push it to the `data` array, because we've encountered a new block, so the old block has to be pushed to data. Then we need to create a new block array and push there
@@ -105,31 +126,57 @@ class AggregatedTable {
               tempArray = [];
             }
           }
+
           if (direction=='row' &amp;&amp; !Array.isArray(tempArray[tempArray.length])) { // if a row in an array doesn't exist create it
             tempArray[tempArray.length] = [];
           }
-          if(!(excludeRows &amp;&amp; ((typeof excludeRows == 'number' &amp;&amp; rowIndex == excludeRows) || (Array.isArray(excludeRows) &amp;&amp; excludeRows.indexOf(rowIndex)!=-1)))) {
-            [].slice.call(row.children).forEach((cell, index) => {
-              if (!(excludeColumns &amp;&amp; ((typeof excludeColumns == 'number' &amp;&amp; cell.cellIndex == excludeColumns) || (Array.isArray(excludeColumns) &amp;&amp; excludeColumns.indexOf(cell.cellIndex) != -1)))) {
-                if (typeof direction == 'string' &amp;&amp; direction == 'row') { //if we strip data horizontally by row
-                  if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ // if it's a block cell we'd exclude it from data
-                    tempArray[tempArray.length-1].push(AggregatedTable.prepareDataCell(cell,rowIndex,index));
-                  }
-                } else if (typeof direction == 'string' &amp;&amp; direction == 'column') { //if we strip data vertically by column
-                  let realIndex = index;
-                  if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ //exclude block cell
-                    realIndex += !row.classList.contains('firstInBlock')? 0 : -1; // offset cell that follows block cell one position back
-                    if (!Array.isArray(tempArray[realIndex])) { //create column array for current column if not available
-                      tempArray[realIndex] = [];
-                    }
-                    tempArray[realIndex].push(AggregatedTable.prepareDataCell(cell,rowIndex,realIndex));
-                  }
-                } else {
-                  throw new TypeError('direction has tobe a String==`row | column`, not a ${direction}')
-                }
+
+          // calculate which cells to exclude
+          let cells = [].slice.call(row.children);
+          let temp_excludeColumns = excludeColumns;
+          if(typeof temp_excludeColumns != undefined){
+            if(typeof temp_excludeColumns == 'number'){
+              // for non-block rows in multidimentional
+              if(multidimentional &amp;&amp; !row.classList.contains('firstInBlock') &amp;&amp; !temp_excludeColumns&lt;0){
+                temp_excludeColumns=temp_excludeColumns+1;
               }
-            });
+              if(temp_excludeColumns&lt;0){ // account for a negative column number (e.g.`-1`) meaning last column
+                temp_excludeColumns= cells.length+temp_excludeColumns;
+              }
+              cells.splice(temp_excludeColumns,1);
+            }
+            if(Array.isArray(temp_excludeColumns)){
+              temp_excludeColumns.sort((a,b)=>{return a>b?1:-1}).reverse();
+              temp_excludeColumns.forEach(i=>{
+                if(i>=0){
+                  cells.splice(multidimentional &amp;&amp; !row.classList.contains('firstInBlock')?i+1:i,1);
+                } else {
+                  cells.splice(cells.length+i,1);
+                }
+              });
+            }
           }
+
+          cells.forEach((cell, index, tds) => {
+
+            // we want to run this every row because number of cells in each row may differ and we want to exclude the last one
+            if (typeof direction == 'string' &amp;&amp; direction == 'row') { //if we strip data horizontally by row
+              if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ // if it's a block cell we'd exclude it from data
+                tempArray[tempArray.length-1].push(AggregatedTable.prepareDataCell(cell,rowIndex,index));
+              }
+            } else if (typeof direction == 'string' &amp;&amp; direction == 'column') { //if we strip data vertically by column
+              let realIndex = index;
+              if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ //exclude block cell
+                realIndex += !row.classList.contains('firstInBlock')? 0 : -1; // offset cell that follows block cell one position back
+                if (!Array.isArray(tempArray[realIndex])) { //create column array for current column if not available
+                  tempArray[realIndex] = [];
+                }
+                tempArray[realIndex].push(AggregatedTable.prepareDataCell(cell,rowIndex,realIndex));
+              }
+            } else {
+              throw new TypeError('direction has tobe a String==`row | column`, not a ${direction}')
+            }
+          });
         });
         //we need to push the last block Array because there'll be no `.firstInBlock` anymore to do that
         if(multidimentional &amp;&amp; Array.isArray(tempArray) &amp;&amp; tempArray.length>0){
@@ -161,7 +208,7 @@ export default AggregatedTable
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.1</a> on Fri Sep 23 2016 16:08:58 GMT+0100 (GMT Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.1</a> on Mon Sep 26 2016 15:58:26 GMT+0100 (GMT Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

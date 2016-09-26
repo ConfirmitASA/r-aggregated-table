@@ -12,21 +12,22 @@
 
   <script>
     testFixture(function(){
+      var multidimentional = Reportal.AggregatedTable.detectMultidimentional(document.querySelector('table'));
       var tableTest = new Reportal.AggregatedTable({
         source: document.querySelector('table'),
         data: [['foo','bar']]
       });
-    });
-    testFixture('table-nested-rowheaders',function(){
-      var multidimentional = Reportal.AggregatedTable.detectMultidimentional(document.querySelector('table'));
-
-      console.log(Reportal.AggregatedTable.getData({
-        source:document.querySelector('table'),
-        multidimentional,
+      var data = Reportal.AggregatedTable.getData({
+        source: document.querySelector('table'),
         direction:'column',
-      }));
+        multidimentional,
+        excludeRows:[0,-1],
+        excludeColumns:[0,-1]
+      });
+      console.log(data);
 
-    })
+
+    });
   </script>
 
   <link rel="import" href="../__tests__/fixtures/table-nested-headers.html">

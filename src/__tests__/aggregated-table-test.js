@@ -15,9 +15,27 @@ describe('AggregatedTable', () => {
     let data_TNH_row = AggregatedTable.getData({
       source:TNH
     });
+    let data_TNH_row_exclude_number = AggregatedTable.getData({
+      source:TNH,
+      excludeRows:0
+    });
+    let data_TNH_row_exclude_array = AggregatedTable.getData({
+      source:TNH,
+      excludeRows:[0,1]
+    });
     let data_TNH_column = AggregatedTable.getData({
       source:TNH,
       direction:'column'
+    });
+    let data_TNH_column_exclude_number = AggregatedTable.getData({
+      source:TNH,
+      direction:'column',
+      excludeColumns:0
+    });
+    let data_TNH_column_exclude_array = AggregatedTable.getData({
+      source:TNH,
+      direction:'column',
+      excludeColumns:[0,-1]
     });
     let data_TCNH_row = AggregatedTable.getData({
       source:TCNH
@@ -42,9 +60,26 @@ describe('AggregatedTable', () => {
     expect(data_TNH_row.length).toEqual(TNH.querySelectorAll('tbody>tr').length);
     expect(data_TNH_row[0].length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length);
 
+    expect(data_TNH_row_exclude_number).toEqual([["Rowheader 1",37,3872,43,251,30,330,36,473,33,1700,51,209,39,592,44,125],["Rowheader 2",32,120,80,5,40,10,50,6,30,60,42,12,5,21,60,5],["Rowheader 3",48,80,67,3,0,1,-20,5,47,55,75,4,80,10,0,2],["Rowheader 4",null,0,null,0,null,0,null,0,null,0,null,0,null,0,null,0],["Rowheader 5",null,0,null,0,null,0,null,0,null,0,null,0,null,0,null,0],["Rowheader 6",36,104,60,10,33,6,-11,9,7,15,54,13,50,34,64,11]]);
+    expect(data_TNH_row_exclude_number.length).toEqual(TNH.querySelectorAll('tbody>tr').length-1);
+    expect(data_TNH_row_exclude_number[0].length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length);
+
+    expect(data_TNH_row_exclude_array).toEqual([["Rowheader 2",32,120,80,5,40,10,50,6,30,60,42,12,5,21,60,5],["Rowheader 3",48,80,67,3,0,1,-20,5,47,55,75,4,80,10,0,2],["Rowheader 4",null,0,null,0,null,0,null,0,null,0,null,0,null,0,null,0],["Rowheader 5",null,0,null,0,null,0,null,0,null,0,null,0,null,0,null,0],["Rowheader 6",36,104,60,10,33,6,-11,9,7,15,54,13,50,34,64,11]]);
+    expect(data_TNH_row_exclude_array.length).toEqual(TNH.querySelectorAll('tbody>tr').length-2);
+    expect(data_TNH_row_exclude_array[0].length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length);
+
     expect(data_TNH_column).toEqual([["GROUP OVERALL","Rowheader 1","Rowheader 2","Rowheader 3","Rowheader 4","Rowheader 5","Rowheader 6"],[37,37,32,48,null,null,36],[4176,3872,120,80,0,0,104],[46,43,80,67,null,null,60],[269,251,5,3,0,0,10],[29,30,40,0,null,null,33],[347,330,10,1,0,0,6],[34,36,50,-20,null,null,-11],[493,473,6,5,0,0,9],[33,33,30,47,null,null,7],[1830,1700,60,55,0,0,15],[52,51,42,75,null,null,54],[238,209,12,4,0,0,13],[38,39,5,80,null,null,50],[657,592,21,10,0,0,34],[43,44,60,0,null,null,64],[143,125,5,2,0,0,11]]);
     expect(data_TNH_column.length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length);
     expect(data_TNH_column[0].length).toEqual(TNH.querySelectorAll('tbody>tr').length);
+
+    expect(data_TNH_column_exclude_number).toEqual([[37,37,32,48,null,null,36],[4176,3872,120,80,0,0,104],[46,43,80,67,null,null,60],[269,251,5,3,0,0,10],[29,30,40,0,null,null,33],[347,330,10,1,0,0,6],[34,36,50,-20,null,null,-11],[493,473,6,5,0,0,9],[33,33,30,47,null,null,7],[1830,1700,60,55,0,0,15],[52,51,42,75,null,null,54],[238,209,12,4,0,0,13],[38,39,5,80,null,null,50],[657,592,21,10,0,0,34],[43,44,60,0,null,null,64],[143,125,5,2,0,0,11]]);
+    expect(data_TNH_column_exclude_number.length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length-1);
+    expect(data_TNH_column_exclude_number[0].length).toEqual(TNH.querySelectorAll('tbody>tr').length);
+
+    expect(data_TNH_column_exclude_array).toEqual([[37,37,32,48,null,null,36],[4176,3872,120,80,0,0,104],[46,43,80,67,null,null,60],[269,251,5,3,0,0,10],[29,30,40,0,null,null,33],[347,330,10,1,0,0,6],[34,36,50,-20,null,null,-11],[493,473,6,5,0,0,9],[33,33,30,47,null,null,7],[1830,1700,60,55,0,0,15],[52,51,42,75,null,null,54],[238,209,12,4,0,0,13],[38,39,5,80,null,null,50],[657,592,21,10,0,0,34],[43,44,60,0,null,null,64]]);
+    expect(data_TNH_column_exclude_array.length).toEqual(TNH.querySelectorAll('tbody>tr:first-child>td').length-2);
+    expect(data_TNH_column_exclude_array[0].length).toEqual(TNH.querySelectorAll('tbody>tr').length);
+
 
     expect(data_TCNH_row).toEqual([
       ["Yes",76,100,72,100,1408,100,1835,100,13299,100,4248,100,2394,100,1722,100,79,100,53,100,13299,100,0,null,0,null,0,null,0,null],
