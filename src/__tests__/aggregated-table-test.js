@@ -1,7 +1,7 @@
 /**
  * Created by IvanP on 21.09.2016.
  */
-import AggregatedTable from '../aggregated-table'
+import TableData from '../table-data'
 
 describe('AggregatedTable', () => {
   beforeEach(() => {
@@ -12,45 +12,45 @@ describe('AggregatedTable', () => {
     let TNH = document.querySelector('#table-nested-headers'),
         TCNH = document.querySelector('#table-crazy-nested-headers'),
         TNRH = document.querySelector('#table-nested-rowheaders');
-    let data_TNH_row = AggregatedTable.getData({
+    let data_TNH_row = TableData.getData({
       source:TNH
     });
-    let data_TNH_row_exclude_number = AggregatedTable.getData({
+    let data_TNH_row_exclude_number = TableData.getData({
       source:TNH,
       excludeRows:0
     });
-    let data_TNH_row_exclude_array = AggregatedTable.getData({
+    let data_TNH_row_exclude_array = TableData.getData({
       source:TNH,
       excludeRows:[0,1]
     });
-    let data_TNH_column = AggregatedTable.getData({
+    let data_TNH_column = TableData.getData({
       source:TNH,
       direction:'column'
     });
-    let data_TNH_column_exclude_number = AggregatedTable.getData({
+    let data_TNH_column_exclude_number = TableData.getData({
       source:TNH,
       direction:'column',
       excludeColumns:0
     });
-    let data_TNH_column_exclude_array = AggregatedTable.getData({
+    let data_TNH_column_exclude_array = TableData.getData({
       source:TNH,
       direction:'column',
       excludeColumns:[0,-1]
     });
-    let data_TCNH_row = AggregatedTable.getData({
+    let data_TCNH_row = TableData.getData({
       source:TCNH
     });
-    let data_TCNH_column = AggregatedTable.getData({
+    let data_TCNH_column = TableData.getData({
       source:TCNH,
       direction:'column'
     });
-    let multidimentional = AggregatedTable.detectMultidimentional(TNRH);
-    let data_TNRH_row = AggregatedTable.getData({
+    let multidimentional = TableData.detectMultidimentional(TNRH);
+    let data_TNRH_row = TableData.getData({
       source:TNRH,
       multidimentional,
       direction:'column',
     });
-    let data_TNRH_column = AggregatedTable.getData({
+    let data_TNRH_column = TableData.getData({
       source:TNRH,
       multidimentional,
       direction:'row'
@@ -117,7 +117,7 @@ describe('AggregatedTable', () => {
     expect(data_TNRH_column[0][0].length).toEqual(TNRH.querySelectorAll('tbody>tr.firstInBlock:first-child>td:not(.blockCell)').length);
   });
   it('.detectMultidimentional should detect multidimentional setup without passed column',()=>{
-    expect(AggregatedTable.detectMultidimentional($j('#table-nested-rowheaders')[0])).toBe(true);
-    expect(AggregatedTable.detectMultidimentional($j('#table-nested-headers')[0])).toBe(false);
+    expect(TableData.detectMultidimentional($j('#table-nested-rowheaders')[0])).toBe(true);
+    expect(TableData.detectMultidimentional($j('#table-nested-headers')[0])).toBe(false);
   });
 });

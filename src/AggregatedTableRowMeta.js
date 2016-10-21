@@ -27,12 +27,12 @@ class AggregatedTableRowMeta {
     this.block = block;
     this.firstInBlock = block!=null && this.row.rowIndex === this.block.cell.parentNode.rowIndex;
   }
-  get firstInBlock(){
+  /*get firstInBlock(){
     return this._firstInBlock;
   }
   set firstInBlock(val){
     this._firstInBlock = val;
     val?this.row.classList.add('firstInBlock'):this.row.classList.remove('firstInBlock');
-  }
+  }*/
 }
 export default AggregatedTableRowMeta

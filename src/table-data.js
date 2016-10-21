@@ -1,71 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>aggregated-table.js - Documentation</title>
-
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
-</head>
-<body>
-
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
-
-<label for="nav-trigger" class="overlay"></label>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AggregatedTable.html">AggregatedTable</a><ul class='methods'><li data-type='method'><a href="AggregatedTable.html#.detectMultidimentional">detectMultidimentional</a></li><li data-type='method'><a href="AggregatedTable.html#.getData">getData</a></li><li data-type='method'><a href="AggregatedTable.html#.prepareDataCell">prepareDataCell</a></li></ul></li><li><a href="AggregatedTableRowMeta.html">AggregatedTableRowMeta</a></li></ul>
-</nav>
-
-<div id="main">
-    
-    <h1 class="page-title">aggregated-table.js</h1>
-    
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
+/**
  * Created by IvanP on 21.09.2016.
  */
 import ReportalBase from "r-reporal-base";
-import AggregatedTableRowMeta from "./AggregatedTableRowMeta";
+//import TableDataRowMeta from "./TableDataRowMeta";
 
 /**
- * A base class for Aggregated tables. Provides data stripping functionality
+ * A base class for stripping data from HTML tables
  * */
-class AggregatedTable {
-
+class TableData {
+    constructor(){}
   /**
    * Detects if the dataset is multi-dimentional and sets classes on items: a rowspanning cell gets a `.blockCell` and the row containing it a `.firstInBlock`
    * __Doesn't work with `Horizontal Percents` enabled!__
    * @param {HTMLTableElement} source - source table
-   * @param {Number} [columnIndex=0] - 0-based index of the column that we need to check against to see if it's a multidimentional table
+   * @param {Number} [columnIndex=0] - 0-based index of the column that we need to check against to see if it's a multidimensional table
    * @return {Boolean} Returns if the data in table is multi-dimentional
    * */
-  static detectMultidimentional(source,columnIndex=0){
-    let multidimentional = false;
+  static detectMultidimensional(source,columnIndex=0){
+    let multidimensional = false;
     let blocks = source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr>td:nth-child(${columnIndex+1})[rowspan]`);
     if(blocks.length>0){
-      multidimentional = true;
+      multidimensional = true;
       [].slice.call(blocks).forEach(blockCell=>{
         blockCell.classList.add('blockCell');
         blockCell.parentNode.classList.add('firstInBlock');
       });
     }
-    return multidimentional
+    return multidimensional
   }
 
   /**
@@ -76,32 +37,38 @@ class AggregatedTable {
    * @returns {?String|?Number} Returns a `String`, a `Number` or a `null` (if data is absent in the cell or its text content boils down to an empty string - i.e. there are no characters in the cell, only HTML tags)
    * */
   static prepareDataCell(cell, rowIndex, columnIndex){
-    return ReportalBase.isNumber(cell.textContent.trim());
+   return ReportalBase.isNumber(cell.textContent.trim());
+    /*return {
+        cell,
+        data: ReportalBase.isNumber(cell.textContent.trim()),
+        rowIndex,
+        columnIndex
+      }*/
   }
 
   /**
-   * A universsal data-axtraction function. It strips data from a table's body. Data can be stripped by rows (horizontally) or by columns (vertically) which is controlled by `direction`. It accounts for a spanning block cell and may exclude it.
+   * A universal data-extraction function. It strips data from a table's body. Data can be stripped by rows (horizontally) or by columns (vertically) which is controlled by `direction`. It accounts for a spanning block cell and may exclude it.
    * @param {Object} options - options to configure the way data is stripped off the table
    * @param {HTMLTableElement} options.source - source table that will be an input for data stripping
-   * @param {String} options.direction='row' - direction in which data stripping will occur: `row` strips across rows and presents an array where each array item is an array of cell values. `column` strips values verticaly in a column, the resulting array will contain arrays (per column) with values resembling normalized data for cells in the column
-   * @param {Boolean} [options.excludeBlock = true] - if table contains block cells that rowspan across several rows, we might need to exclude those from actual data
+   * @param {String=} options.direction='row' - direction in which data stripping will occur: `row` strips across rows and presents an array where each array item is an array of cell values. `column` strips values verticaly in a column, the resulting array will contain arrays (per column) with values resembling normalized data for cells in the column
+   * @param {Boolean=} [options.excludeBlock=true] - if table contains block cells that rowspan across several rows, we might need to exclude those from actual data
    * @param {Array|Number} [options.excludeColumns] - if table contains columns that are not to be in data, then pass a single index or an array of cell indices (0-based). You need to count columns not by headers but by the cells in rows.
    * @param {Array|Number} [options.excludeRows] - if table contains rows that are not to be in data, then pass a single index or an array of row indices (0-based). You need to count only rows that contain data, not the table-header rows.
-   * @param {Array|Number} options.multidimentional=false - whether the table has aggregating cells that aggregate rowheaders. Result of {@link AggregatedTable#detectMultidimentional} may be passed here to automatically calculate if it has aggregating cells.
+   * @param {Boolean=} options.multidimensional=false - whether the table has aggregating cells that aggregate rowheaders. Result of {@link TableData#detectMultidimensional} may be passed here to automatically calculate if it has aggregating cells.
    * @returns {Array} returns data array.
    * */
   static getData(options){
-    let {source,excludeBlock=true,excludeColumns,excludeRows,direction='row',multidimentional=false,meta}=options;
+    let {source,excludeBlock=true,excludeColumns,excludeRows,direction='row',multidimensional=false}=options;
     let data = [];
-    if(source &amp;&amp; source.tagName == 'TABLE'){
+    if(source && source.tagName == 'TABLE'){
       let rows = [].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`));
       if(rows.length>0){
         var tempArray=[];
         // account for a negative row number (`-1`) meaning last row
         if(typeof excludeRows != undefined){
           if(typeof excludeRows == 'number'){
-            // for non-block rows in multidimentional
-            if(excludeRows&lt;0){ // account for a negative column number (e.g.`-1`) meaning last column
+            // for non-block rows in multidimensional
+            if(excludeRows<0){ // account for a negative column number (e.g.`-1`) meaning last column
               excludeRows= rows.length+excludeRows;
             }
             rows.splice(excludeRows,1);
@@ -119,15 +86,15 @@ class AggregatedTable {
           }
         }
         rows.forEach((row,rowIndex)=>{
-          if(multidimentional){
+          if(multidimensional){
             // we need to check if the `tempArray` is not empty and push it to the `data` array, because we've encountered a new block, so the old block has to be pushed to data. Then we need to create a new block array and push there
             if(row.classList.contains('firstInBlock')){
-              if(Array.isArray(tempArray) &amp;&amp; tempArray.length>0){data.push(tempArray);}
+              if(Array.isArray(tempArray) && tempArray.length>0){data.push(tempArray);}
               tempArray = [];
             }
           }
 
-          if (direction=='row' &amp;&amp; !Array.isArray(tempArray[tempArray.length])) { // if a row in an array doesn't exist create it
+          if (direction=='row' && !Array.isArray(tempArray[tempArray.length])) { // if a row in an array doesn't exist create it
             tempArray[tempArray.length] = [];
           }
 
@@ -136,11 +103,11 @@ class AggregatedTable {
           let temp_excludeColumns = excludeColumns;
           if(typeof temp_excludeColumns != undefined){
             if(typeof temp_excludeColumns == 'number'){
-              // for non-block rows in multidimentional
-              if(multidimentional &amp;&amp; !row.classList.contains('firstInBlock') &amp;&amp; !temp_excludeColumns&lt;0){
+              // for non-block rows in multidimensional
+              if(multidimensional && !row.classList.contains('firstInBlock') && !temp_excludeColumns<0){
                 temp_excludeColumns=temp_excludeColumns+1;
               }
-              if(temp_excludeColumns&lt;0){ // account for a negative column number (e.g.`-1`) meaning last column
+              if(temp_excludeColumns<0){ // account for a negative column number (e.g.`-1`) meaning last column
                 temp_excludeColumns= cells.length+temp_excludeColumns;
               }
               cells.splice(temp_excludeColumns,1);
@@ -149,7 +116,7 @@ class AggregatedTable {
               temp_excludeColumns.sort((a,b)=>{return a>b?1:-1}).reverse();
               temp_excludeColumns.forEach(i=>{
                 if(i>=0){
-                  cells.splice(multidimentional &amp;&amp; !row.classList.contains('firstInBlock')?i+1:i,1);
+                  cells.splice(multidimensional && !row.classList.contains('firstInBlock')?i+1:i,1);
                 } else {
                   cells.splice(cells.length+i,1);
                 }
@@ -157,21 +124,21 @@ class AggregatedTable {
             }
           }
 
-          cells.forEach((cell, index, tds) => {
+          cells.forEach((cell, index) => {
 
             // we want to run this every row because number of cells in each row may differ and we want to exclude the last one
-            if (typeof direction == 'string' &amp;&amp; direction == 'row') { //if we strip data horizontally by row
-              if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ // if it's a block cell we'd exclude it from data
-                tempArray[tempArray.length-1].push(AggregatedTable.prepareDataCell(cell,rowIndex,index));
+            if (typeof direction == 'string' && direction == 'row') { //if we strip data horizontally by row
+              if(!(multidimensional && excludeBlock && cell.rowSpan>1)){ // if it's a block cell we'd exclude it from data
+                tempArray[tempArray.length-1].push(this.prepareDataCell(cell,rowIndex,index));
               }
-            } else if (typeof direction == 'string' &amp;&amp; direction == 'column') { //if we strip data vertically by column
+            } else if (typeof direction == 'string' && direction == 'column') { //if we strip data vertically by column
               let realIndex = index;
-              if(!(multidimentional &amp;&amp; excludeBlock &amp;&amp; cell.rowSpan>1)){ //exclude block cell
+              if(!(multidimensional && excludeBlock && cell.rowSpan>1)){ //exclude block cell
                 realIndex += !row.classList.contains('firstInBlock')? 0 : -1; // offset cell that follows block cell one position back
                 if (!Array.isArray(tempArray[realIndex])) { //create column array for current column if not available
                   tempArray[realIndex] = [];
                 }
-                tempArray[realIndex].push(AggregatedTable.prepareDataCell(cell,rowIndex,realIndex));
+                tempArray[realIndex].push(this.prepareDataCell(cell,rowIndex,realIndex));
               }
             } else {
               throw new TypeError('direction has tobe a String==`row | column`, not a ${direction}')
@@ -179,7 +146,7 @@ class AggregatedTable {
           });
         });
         //we need to push the last block Array because there'll be no `.firstInBlock` anymore to do that
-        if(multidimentional &amp;&amp; Array.isArray(tempArray) &amp;&amp; tempArray.length>0){
+        if(multidimensional && Array.isArray(tempArray) && tempArray.length>0){
           data.push(tempArray)
         } else {
           data = tempArray;
@@ -195,23 +162,4 @@ class AggregatedTable {
 
 }
 
-export default AggregatedTable
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.1</a> on Mon Sep 26 2016 15:58:26 GMT+0100 (GMT Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/linenumber.js"></script>
-</body>
-</html>
+export default TableData
