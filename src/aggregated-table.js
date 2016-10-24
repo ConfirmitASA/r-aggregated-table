@@ -37,7 +37,6 @@ class AggregatedTable extends TableData {
     this.source = source;
     this.refSource=refSource;
 
-    /** @inheritDoc */
     this.multidimensional = this.constructor.detectMultidimensional(source,rowheaderColumnIndex);
     //multidimensional = typeof multidimensional == undefined? this.constructor.detectMultidimensional(source,rowheaderColumnIndex):multidimensional;
     this.data = this.constructor.getData({source,refSource,defaultHeaderRow,excludeBlock,excludeColumns,excludeRows,direction:dataStripDirection,multidimensional: this.multidimensional});
@@ -45,7 +44,7 @@ class AggregatedTable extends TableData {
 
     if(sorting && typeof sorting == 'object'){
       let reorderFunction = e=>{
-        return this.constructor.reorderRows(this.data,this.source,multidimensional)
+        return this.constructor.reorderRows(this.data,this.source,this.multidimensional)
       };
       [source,refSource].forEach(target=>{
         if(target){
@@ -57,7 +56,7 @@ class AggregatedTable extends TableData {
       sorting.refSource = refSource;
       sorting.defaultHeaderRow = defaultHeaderRow;
       sorting.data=this.data;
-      sorting.multidimensional = multidimensional;
+      sorting.multidimensional = this.multidimensional;
       this.sorting = new SortTable(sorting);
 
       // add listener to do reordering on sorting
@@ -87,16 +86,23 @@ class AggregatedTable extends TableData {
 
   /**
    * This function takes care of repositioning rows in the table to match the `data` array in the way it was sorted and if the data is separated into blocks, then move the block piece to the first row in each data block.
+   * @param {Array} data - full sorted dataset. Instance of {@link TableData#getData}
+   * @param {HTMLTableElement} source - source table
+   * @param {Boolean} multidimensional
    * */
   static reorderRows(data,source,multidimensional){
     let fragment = document.createDocumentFragment();
-    AggregatedTable.dimensionalDataIterator(data,multidimensional,dataitem=>{
-      if(multidimensional){AggregatedTable.repositionBlockCell(dataitem)}// if multidimensional reposition aggregating block cell to the topmost row in sorted array
-      dataitem.forEach(item=>{fragment.appendChild(item[0].cell.parentNode)}); // add row to fragment in the array order, this doesn't account for column stripped data yet
+    AggregatedTable.dimensionalDataIterator(data,multidimensional,(dataDimension)=>{
+      if(multidimensional){AggregatedTable.repositionBlockCell(dataDimension)} // if multidimensional reposition aggregating block cell to the topmost row in sorted array
+      dataDimension.forEach(item=>{fragment.appendChild(item[0].cell.parentNode)}); // add row to fragment in the array order, this doesn't account for column stripped data yet
     });
     source.querySelector('tbody').appendChild(fragment);
   }
 
+  /*
+   * Repositions the rowspanning block cell from the initial row to the new sorted row
+   * @param {Array} items - dimension of data
+   * */
   static repositionBlockCell(items){
     let blockRowItem = items.filter(item=>item[0].cell.parentNode.classList.contains('firstInBlock'))[0];
     let blockRow = blockRowItem[0].cell.parentNode;
@@ -109,9 +115,13 @@ class AggregatedTable extends TableData {
   }
 
   /**
-   * allows to perform action on data based on multidimensionality
+   * allows to perform action on data based on its multidimensionality
+   * @param {Array} data - full dataset. Instance of {@link TableData#getData}
+   * @param {Boolean} multidimensional
+   * @param {!Function} callback - a function to be executed on a dimension of data. Data is passed as the only attribute to that function
    * */
   static dimensionalDataIterator(data,multidimensional,callback){
+    if(!callback || typeof callback != 'function'){throw new TypeError('`callback` must be passed and be a function')}
     if(!multidimensional){
       return callback(data)
     } else { // if array has nested array blocks

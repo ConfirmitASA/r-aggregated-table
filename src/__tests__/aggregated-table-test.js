@@ -64,7 +64,7 @@ describe('AggregatedTable', () => {
       TNRH = document.querySelector('#table-nested-rowheaders');
     });
 
-    it('reorders rows',()=>{
+    it('reposition block cell',()=>{
       let firstRow = TNRH.querySelector('tbody>tr:first-child');
       let a1 = new AggregatedTable({
         source: TNRH,
