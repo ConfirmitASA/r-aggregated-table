@@ -10,7 +10,7 @@ import SortTable from "r-sort-table/src/sort-table";
 var styles = require('r-sort-table/src/sort-table-styles.css');
 
 /**
- * A base class for aggregated tables
+ * A base class for aggregated tables. Multidimensional property of data is automatically calculated, thus removed from params.
  * @extends TableData
  * */
 class AggregatedTable extends TableData {
@@ -24,14 +24,13 @@ class AggregatedTable extends TableData {
    * @param {Boolean=} [options.excludeBlock=true] - if table contains block cells that rowspan across several rows, we might need to exclude those from actual data
    * @param {Array|Number} [options.excludeColumns] - if table contains columns that are not to be in data, then pass a single index or an array of cell indices (0-based). You need to count columns not by headers but by the cells in rows.
    * @param {Array|Number} [options.excludeRows] - if table contains rows that are not to be in data, then pass a single index or an array of row indices (0-based). You need to count only rows that contain data, not the table-header rows.
-   * @param {Boolean=} options.multidimensional=false - whether the table has aggregating cells that aggregate rowheaders. Result of {@link TableData#detectMultidimentional} may be passed here to automatically calculate if it has aggregating cells.
    * @param {SortTable} options.sorting - sorting options, see {@link SortTable}. If you want to leave all options default but enable sorting, pass an empty object(`.., sorting:{}`), or sorting won't be applied.
    * */
   constructor(options){
     super();
     let {
       source,refSource,
-      rowheaderColumnIndex,defaultHeaderRow,dataStripDirection,excludeBlock,excludeColumns,excludeRows,multidimensional,
+      rowheaderColumnIndex,defaultHeaderRow,dataStripDirection,excludeBlock,excludeColumns,excludeRows,
       sorting
     } = options;
 
@@ -39,9 +38,10 @@ class AggregatedTable extends TableData {
     this.refSource=refSource;
 
     /** @inheritDoc */
-    this.data = this.constructor.getData({source,refSource,defaultHeaderRow,excludeBlock,excludeColumns,excludeRows,direction:dataStripDirection,multidimensional});
+    this.multidimensional = this.constructor.detectMultidimensional(source,rowheaderColumnIndex);
+    //multidimensional = typeof multidimensional == undefined? this.constructor.detectMultidimensional(source,rowheaderColumnIndex):multidimensional;
+    this.data = this.constructor.getData({source,refSource,defaultHeaderRow,excludeBlock,excludeColumns,excludeRows,direction:dataStripDirection,multidimensional: this.multidimensional});
 
-    multidimensional = typeof multidimensional == undefined? this.constructor.detectMultidimensional(source,rowheaderColumnIndex):multidimensional;
 
     if(sorting && typeof sorting == 'object'){
       let reorderFunction = e=>{
@@ -91,11 +91,26 @@ class AggregatedTable extends TableData {
   static reorderRows(data,source,multidimensional){
     let fragment = document.createDocumentFragment();
     AggregatedTable.dimensionalDataIterator(data,multidimensional,dataitem=>{
-      dataitem.forEach(item=>{fragment.appendChild(item[0].cell.parentNode)}); // this doesn't account for column stripped data
+      if(multidimensional){AggregatedTable.repositionBlockCell(dataitem)}// if multidimensional reposition aggregating block cell to the topmost row in sorted array
+      dataitem.forEach(item=>{fragment.appendChild(item[0].cell.parentNode)}); // add row to fragment in the array order, this doesn't account for column stripped data yet
     });
     source.querySelector('tbody').appendChild(fragment);
   }
 
+  static repositionBlockCell(items){
+    let blockRowItem = items.filter(item=>item[0].cell.parentNode.classList.contains('firstInBlock'))[0];
+    let blockRow = blockRowItem[0].cell.parentNode;
+    if(items.indexOf(blockRowItem)!=0){// if block row isn't first in dimension
+      let newFirstRow = items[0][0].cell.parentNode;
+      newFirstRow.insertBefore(blockRow.querySelector('.blockCell'),newFirstRow.firstElementChild);// move block cell
+      newFirstRow.classList.add('firstInBlock');
+      blockRow.classList.remove('firstInBlock');
+    }
+  }
+
+  /**
+   * allows to perform action on data based on multidimensionality
+   * */
   static dimensionalDataIterator(data,multidimensional,callback){
     if(!multidimensional){
       return callback(data)
