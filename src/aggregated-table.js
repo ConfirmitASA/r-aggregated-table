@@ -6,6 +6,7 @@ import TableData from './table-data';
 import ReportalBase from "r-reporal-base";
 import TableColumns from "r-table-columns";
 import SortTable from "r-sort-table/src/sort-table";
+import TableFloatingHeader from "r-table-floating-header/src/table-floating-header";
 
 var styles = require('r-sort-table/src/sort-table-styles.css');
 
@@ -25,20 +26,47 @@ class AggregatedTable extends TableData {
    * @param {Array|Number} [options.excludeColumns] - if table contains columns that are not to be in data, then pass a single index or an array of cell indices (0-based). You need to count columns not by headers but by the cells in rows.
    * @param {Array|Number} [options.excludeRows] - if table contains rows that are not to be in data, then pass a single index or an array of row indices (0-based). You need to count only rows that contain data, not the table-header rows.
    * @param {SortTable} options.sorting - sorting options, see {@link SortTable}. If you want to leave all options default but enable sorting, pass an empty object(`.., sorting:{}`), or sorting won't be applied.
+   * @param {SortTable} options.floatingHeader - floating header, see {@link SortTable}. If you want to leave all options default but enable sorting, pass an empty object(`.., sorting:{}`), or sorting won't be applied.
    * */
   constructor(options){
     super();
     let {
-      source,refSource,
+      source,
       rowheaderColumnIndex,defaultHeaderRow,dataStripDirection,excludeBlock,excludeColumns,excludeRows,
-      sorting
+      sorting, floatingHeader
     } = options;
 
+    /**
+     *  The source table
+     *  @type {HTMLTableElement}
+     *  @memberOf AggregatedTable
+     *  */
     this.source = source;
-    this.refSource=refSource;
+    let refSource;
+    if(floatingHeader && typeof floatingHeader=='object'){
+      let fHeader = new TableFloatingHeader(source);
+      /**
+       *  The floating header
+       *  @type {HTMLTableElement}
+       *  @memberOf AggregatedTable
+       *  */
+      this.refSource = refSource = fHeader.header;
+    }
+
+    /**
+     *  Whether data is monodimensional or multidimensional
+     *  @type {Boolean}
+     *  @memberOf AggregatedTable
+     *  */
 
     this.multidimensional = this.constructor.detectMultidimensional(source,rowheaderColumnIndex);
     //multidimensional = typeof multidimensional == undefined? this.constructor.detectMultidimensional(source,rowheaderColumnIndex):multidimensional;
+
+    /**
+     *  data Array
+     *  @type {Array.<{cell:HTMLTableCellElement, data:?String|?Number, columnIndex:Number}>}
+     *  @memberOf AggregatedTable
+     *  */
     this.data = this.constructor.getData({source,refSource,defaultHeaderRow,excludeBlock,excludeColumns,excludeRows,direction:dataStripDirection,multidimensional: this.multidimensional});
 
 
@@ -57,13 +85,21 @@ class AggregatedTable extends TableData {
       sorting.defaultHeaderRow = defaultHeaderRow;
       sorting.data=this.data;
       sorting.multidimensional = this.multidimensional;
+
+      /**
+       *  sorting object. See {@link SortTable}
+       *  @type {SortTable}
+       *  @memberOf AggregatedTable
+       *  */
       this.sorting = new SortTable(sorting);
 
       // add listener to do reordering on sorting
     }
 
     /**
-     * @type {{index:Number, title:String, colSpan:Number, cell: HTMLTableCellElement, ?refCell:HTMLTableCellElement}} columns - an array of columns
+     * table columns array
+     * @type {Array.<{index:Number, title:String, colSpan:Number, cell: HTMLTableCellElement, ?refCell:HTMLTableCellElement}>}
+     * @memberOf AggregatedTable
      * */
     this.columns = this.sorting && this.sorting.columns? this.sorting.columns : new TableColumns({source,refSource,defaultHeaderRow});
   }
@@ -73,7 +109,7 @@ class AggregatedTable extends TableData {
    * @param {HTMLTableCellElement} cell - cell element to have data stripped off it
    * @param {HTMLTableCellElement} rowIndex - index of the row it's in
    * @param {HTMLTableCellElement} columnIndex - index of the column it's in
-   * @returns {{cell:HTMLTableCellElement, data:?String|?Number, columnIndex:Number}} Returns an object `{cell:HTMLTableCellElement, data:?String|?Number, columnIndex:Number}` (if data is absent in the cell or its text content boils down to an empty string - i.e. there are no characters in the cell, only HTML tags) it returns null in `data`
+   * @returns {{cell:HTMLTableCellElement, ?data:String|Number, columnIndex:Number}} Returns an object `{cell:HTMLTableCellElement, data:?String|?Number, columnIndex:Number}` (if data is absent in the cell or its text content boils down to an empty string - i.e. there are no characters in the cell, only HTML tags) it returns null in `data`
    * @override
    * */
   static prepareDataCell(cell, rowIndex, columnIndex){

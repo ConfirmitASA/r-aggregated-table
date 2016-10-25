@@ -8,7 +8,6 @@ import ReportalBase from "r-reporal-base";
  * A base class for stripping data from HTML tables
  * */
 class TableData {
-    constructor(){}
   /**
    * Detects if the dataset is multi-dimentional and sets classes on items: a rowspanning cell gets a `.blockCell` and the row containing it a `.firstInBlock`
    * __Doesn't work with `Horizontal Percents` enabled!__
