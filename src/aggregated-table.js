@@ -70,7 +70,6 @@ class AggregatedTable extends TableData {
      *  */
     this.data = this.constructor.getData({source,refSource,defaultHeaderRow,excludeBlock,excludeColumns,excludeRows,direction:dataStripDirection,multidimensional: this.multidimensional});
 
-    this.constructor.init();
 
     if(sorting && typeof sorting == 'object'){
       let reorderFunction = e=>{
@@ -106,7 +105,6 @@ class AggregatedTable extends TableData {
     this.columns = this.sorting && this.sorting.columns? this.sorting.columns : new TableColumns({source,refSource,defaultHeaderRow});
   }
 
-  static init(){}
 
   /**
    * Extracts data from a given cell. Override in an inherited class if you need to add any metadata to it.
@@ -120,7 +118,8 @@ class AggregatedTable extends TableData {
     return {
       cell,
       data: ReportalBase.isNumber(cell.textContent.trim()),
-      columnIndex
+      columnIndex,
+      rowIndex
     }
   }
 

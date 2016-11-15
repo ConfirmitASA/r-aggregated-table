@@ -11,7 +11,8 @@ import AggregatedTableRowMeta from "./aggregated-table-row-meta";
 window.Reportal = window.Reportal || {};
 ReportalBase.mixin(window.Reportal,{
   TableData,
-  AggregatedTable
+  AggregatedTable,
+  AggregatedTableRowMeta
 });
 
 export default AggregatedTable
