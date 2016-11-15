@@ -1,6 +1,6 @@
 {
   "name": "r-aggregated-table",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Base class for all aggregated tables",
   "main": "src/main.js",
   "repository": {
@@ -14,7 +14,7 @@
     "clean": "rimraf dist build",
     "lint": "eslint src",
     "docs": "node_modules/.bin/jsdoc --configure jsdoc.conf --verbose",
-    "docs-commit": "git subtree push --prefix docs/r-aggregated-table/0.2.3 origin gh-pages",
+    "docs-commit": "git subtree push --prefix docs/r-aggregated-table/0.2.4 origin gh-pages",
     "test": "karma start --single-run --no-auto-watch karma.config.js",
     "report-coverage": "codecov -f coverage/lcov.info"
   },
