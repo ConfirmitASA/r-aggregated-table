@@ -8,7 +8,8 @@ import TableColumns from "r-table-columns";
 import SortTable from "r-sort-table/src/sort-table";
 import TableFloatingHeader from "r-table-floating-header/src/table-floating-header";
 
-var styles = require('r-sort-table/src/sort-table-styles.css');
+let styles = require('r-sort-table/src/sort-table-styles.css');
+let aggregatedTableCSS = require('./aggregated-table.css');
 
 /**
  * A base class for aggregated tables. Multidimensional property of data is automatically calculated, thus removed from params.

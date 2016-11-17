@@ -17,7 +17,7 @@ class TableData {
    * */
   static detectMultidimensional(source,columnIndex=0){
     let multidimensional = false;
-    let blocks = source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr>td:nth-child(${columnIndex+1})[rowspan]`);
+    let blocks = source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr>td:nth-child(${columnIndex})[rowspan]`);
     if(blocks.length>0){
       multidimensional = true;
       [].slice.call(blocks).forEach(blockCell=>{

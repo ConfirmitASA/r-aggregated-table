@@ -29,6 +29,24 @@
       });
       console.log(at);
     });
+    testFixture('table-nested-rowheaders',function(){
+      let at = new Reportal.AggregatedTable({
+        source: document.querySelector('table'),
+        dataStripDirection:'row',
+        //refSource,
+        rowheaderColumnIndex:1,
+        //defaultHeaderRow,
+        //excludeBlock,
+        //excludeColumns,
+        //excludeRows,
+        //multidimensional,
+        sorting:{
+           //defaultSorting:[{column:2,direction:'desc'}]
+        },
+        floatingHeader:{}
+      });
+      console.log(at);
+    });
 
   </script>
 
