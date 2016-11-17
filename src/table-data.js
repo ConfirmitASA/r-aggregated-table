@@ -12,12 +12,11 @@ class TableData {
    * Detects if the dataset is multi-dimentional and sets classes on items: a rowspanning cell gets a `.blockCell` and the row containing it a `.firstInBlock`
    * __Doesn't work with `Horizontal Percents` enabled!__
    * @param {HTMLTableElement} source - source table
-   * @param {Number} [columnIndex=0] - 0-based index of the column that we need to check against to see if it's a multidimensional table
    * @return {Boolean} Returns if the data in table is multi-dimentional
    * */
-  static detectMultidimensional(source,columnIndex=0){
+  static detectMultidimensional(source){
     let multidimensional = false;
-    let blocks = source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr>td:nth-child(${columnIndex})[rowspan]`);
+    let blocks = source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr>td:nth-child(1)[rowspan]`);
     if(blocks.length>0){
       multidimensional = true;
       [].slice.call(blocks).forEach(blockCell=>{

@@ -61,8 +61,7 @@ class AggregatedTable extends TableData {
      *  @memberOf AggregatedTable
      *  */
 
-    this.multidimensional = this.constructor.detectMultidimensional(source,rowheaderColumnIndex);
-    //multidimensional = typeof multidimensional == undefined? this.constructor.detectMultidimensional(source,rowheaderColumnIndex):multidimensional;
+    this.multidimensional = this.constructor.detectMultidimensional(source);
 
     /**
      *  data Array
