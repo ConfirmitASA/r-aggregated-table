@@ -61,7 +61,7 @@ class TableData {
     if(source && source.tagName == 'TABLE'){
       let rows = [].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`));
       if(rows.length>0){
-        var tempArray=[];
+        let tempArray=[];
         // account for a negative row number (`-1`) meaning last row
         if(typeof excludeRows != undefined){
           if(typeof excludeRows == 'number'){
