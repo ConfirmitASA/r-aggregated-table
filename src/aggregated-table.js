@@ -157,15 +157,15 @@ class AggregatedTable extends TableData {
    * allows to perform action on data based on its multidimensionality
    * @param {Array} data - full dataset. Instance of {@link TableData#getData}
    * @param {Boolean} multidimensional
-   * @param {!Function} callback - a function to be executed on a dimension of data. Data is passed as the only attribute to that function
+   * @param {!Function} callback - a function to be executed on a dimension of data. Callback is called with two attributes: `dimension` - the current iteration of data and `index` (optional) if it's multidimensional
    * */
   static dimensionalDataIterator(data,multidimensional,callback){
     if(!callback || typeof callback != 'function'){throw new TypeError('`callback` must be passed and be a function')}
     if(!multidimensional){
       return callback(data)
     } else { // if array has nested array blocks
-      data.forEach(dimension=>{
-        callback(dimension);
+      data.forEach((dimension,index)=>{
+        callback(dimension,index);
       });
     }
   }
