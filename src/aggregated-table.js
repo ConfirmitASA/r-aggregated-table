@@ -97,12 +97,20 @@ class AggregatedTable extends TableData {
       // add listener to do reordering on sorting
     }
 
+
     /**
      * table columns array
      * @type {Array.<{index:Number, title:String, colSpan:Number, cell: HTMLTableCellElement, ?refCell:HTMLTableCellElement}>}
      * @memberOf AggregatedTable
      * */
     this.columns = this.sorting && this.sorting.columns? this.sorting.columns : new TableColumns({source,refSource,defaultHeaderRow});
+  }
+
+  get data(){
+    return this._data;
+  }
+  set data(val){
+    this._data=val;
   }
 
 
