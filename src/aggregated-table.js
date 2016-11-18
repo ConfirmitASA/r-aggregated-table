@@ -46,13 +46,13 @@ class AggregatedTable extends TableData {
     this.source = source;
     let refSource;
     if(floatingHeader && typeof floatingHeader=='object'){
-      let fHeader = new TableFloatingHeader(source);
+      this.floatingHeader = new TableFloatingHeader(source);
       /**
        *  The floating header
        *  @type {HTMLTableElement}
        *  @memberOf AggregatedTable
        *  */
-      this.refSource = refSource = fHeader.header;
+      this.refSource = refSource = this.floatingHeader.header;
     }
 
     /**
