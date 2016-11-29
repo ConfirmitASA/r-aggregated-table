@@ -63,7 +63,7 @@
     "codecov": ">1.0.0"
   },
   "dependencies": {
-    "r-reporal-base": "github:confirmitasa/r-reportal-base",
+    "r-reportal-base": "github:confirmitasa/r-reportal-base",
     "r-sort-table": "github:confirmitasa/r-sort-table",
     "r-table-columns": "github:confirmitasa/r-table-columns",
     "r-table-floating-header": "github:confirmitasa/r-table-floating-header"
