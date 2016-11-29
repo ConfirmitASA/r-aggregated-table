@@ -3,7 +3,7 @@
  */
 
 import TableData from './table-data';
-import ReportalBase from "r-reporal-base";
+import ReportalBase from "r-reportal-base";
 import TableColumns from "r-table-columns";
 import SortTable from "r-sort-table/src/sort-table";
 import TableFloatingHeader from "r-table-floating-header/src/table-floating-header";
