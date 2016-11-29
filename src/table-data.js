@@ -1,7 +1,7 @@
 /**
  * Created by IvanP on 21.09.2016.
  */
-import ReportalBase from "r-reporal-base";
+import ReportalBase from "r-reportal-base";
 //import TableDataRowMeta from "./TableDataRowMeta";
 
 /**
